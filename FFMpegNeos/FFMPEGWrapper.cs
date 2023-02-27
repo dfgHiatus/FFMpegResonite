@@ -1,5 +1,4 @@
 ﻿using BaseX;
-using FrooxEngine;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -16,9 +15,22 @@ namespace FFMPEGNeos
             {
                 var process = new Process();
                 process.StartInfo.FileName = executable;
-                process.StartInfo.Arguments = string.Join(" ", overwrite ? "-y" : "-n", arguments);
+
+                switch (Path.GetFileNameWithoutExtension(executable))
+                {
+                    case "ffmpeg":
+                        process.StartInfo.Arguments = string.Join(" ", overwrite ? "-y" : "-n", arguments);
+                        break;
+                    case "ffprobe":
+                    case "ffplay":
+                        process.StartInfo.Arguments = arguments;
+                        break;
+                    default:
+                        throw new ArgumentException();
+                }
+        
                 process.StartInfo.UseShellExecute = true;
-                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.CreateNoWindow = true; // TODO Determine why supplying "hidden" throws here
                 process.Start();
                 await process.WaitForExitAsync();
                 return true;
