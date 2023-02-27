@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
 namespace FFMpegNeos.Tests
 {
-    
     internal static class FFMpegWrapper
     { 
         public static bool RunFFScript(string executable, string arguments, bool overwrite = true, bool hidden = true)
@@ -16,12 +10,7 @@ namespace FFMpegNeos.Tests
             {
                 var process = new Process();
                 process.StartInfo.FileName = executable;
-
-                if (overwrite)
-                    process.StartInfo.Arguments = string.Join(' ', "-y", arguments);
-                else
-                    process.StartInfo.Arguments = string.Join(' ', "-n", arguments);
-
+                process.StartInfo.Arguments = string.Join(' ', overwrite ? "-y" : "-n", arguments);
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.CreateNoWindow = hidden;

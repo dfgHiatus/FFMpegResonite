@@ -6,13 +6,13 @@ namespace FFMpegNeos.Tests
     {
         static void Main(string[] args)
         {
-            var inputPath = "input.mp4";
+            var inputPath = @"C:\Users\BenjaminEvans\AppData\Local\Temp\Solirax\NeosVR\Cache\FFMPEG\2023-02-21_08-06-15.mp4";
             var inputMP3 = "input.mp3";
             var inputGIF = "input.gif";
 
             var outputVideo = "output.mp4";
             
-            var ouputAudio = "output.ogg";
+            var outputAudio = @"C:\Users\BenjaminEvans\AppData\Local\Temp\Solirax\NeosVR\Cache\FFMPEG\2023-02-21_08-06-15.ogg";
 
             var outputQuantity = "1";
             var outputTime1 = "00:00:05";
@@ -25,8 +25,8 @@ namespace FFMpegNeos.Tests
             //FFMpegWrapper.RunFFScript(FFMPEGInterface.FFPROBE, command, hidden: false); -c:a aac copy
 
             /// Extract audio from video
-            //var command = $"-i {inputPath} -vn {outputAudio}";
-            //FFMpegWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, hidden: false);
+            var command = $"-i {inputPath} -vn {outputAudio}";
+            FFMpegWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, hidden: false);
 
             /// Seperate video from audio
             //command = $"-i {inputPath} -an {outputVideo}";

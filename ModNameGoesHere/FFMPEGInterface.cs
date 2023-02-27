@@ -1,4 +1,6 @@
-﻿namespace FFMpegNeos.Tests
+﻿using System.IO;
+
+namespace FFMPEGNeos
 {
     internal class FFMPEGInterface
     {
