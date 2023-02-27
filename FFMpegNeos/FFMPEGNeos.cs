@@ -25,6 +25,9 @@ namespace FFMPEGNeos
             "FFMPEG"));
         
         internal static ModConfiguration Config;
+        private const string InvalidTime = "Invalid time was provided!";
+        private const string InvalidTimeRange = "Invalid time range was provided!";
+        private const string InvalidFrameRate = "Invalid frame rate modifier was provided!";
 
         private static Regex validTimes = new Regex(@"[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]{1,3})?");
         private static Regex validFraction = new Regex(@"[0-9]+/[0-9]+");
@@ -121,7 +124,7 @@ namespace FFMPEGNeos
                 {
                     if (!IsValidTime(snapshotTime.Text.Content.Value))
                     {
-                        button.LabelText = __instance.GetLocalized("General.FAILED");
+                        button.LabelText = InvalidTime;
                         button.Enabled = false;
                         return;
                     }
@@ -149,7 +152,7 @@ namespace FFMPEGNeos
                 {
                     if (!IsValidTimeRange(startTimeFrames.Text.Content.Value, endTimeFrames.Text.Content.Value))
                     {
-                        button.LabelText = __instance.GetLocalized("General.FAILED");
+                        button.LabelText = InvalidTimeRange;
                         button.Enabled = false;
                         return;
                     }
@@ -158,7 +161,7 @@ namespace FFMPEGNeos
                     {
                         if (!IsValidFrameRate(optionalFrameRate.Text.Content.Value))
                         {
-                            button.LabelText = __instance.GetLocalized("General.FAILED");
+                            button.LabelText = InvalidFrameRate;
                             button.Enabled = false;
                             return;
                         }
@@ -199,7 +202,7 @@ namespace FFMPEGNeos
                     {
                         if (!IsValidTimeRange(startTimeSubvideo.Text.Content.Value, endTimeSubvideo.Text.Content.Value))
                         {
-                            button.LabelText = __instance.GetLocalized("General.FAILED");
+                            button.LabelText = InvalidTimeRange;
                             button.Enabled = false;
                             return;
                         }
