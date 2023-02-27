@@ -4,6 +4,7 @@ using FrooxEngine;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace FFMPEGNeos
@@ -32,8 +33,8 @@ namespace FFMPEGNeos
 
             return (true, inputName, convertedName);
         }
-        
-        internal static async void ImportMedia(Slot slot, MediaType returnMediaType, List<string> importedNames, IButton button = null)
+
+        internal static async void ImportMedia(Slot slot, MediaType returnMediaType, IEnumerable<string> importedNames, IButton button = null)
         {
             await default(ToWorld);
             UniversalImporter.Import(
@@ -136,6 +137,8 @@ namespace FFMPEGNeos
                     return AssetClass.Audio;
                 case MediaType.IMAGE:
                     return AssetClass.Texture;
+                case MediaType.TEXT:
+                    return AssetClass.Text;
                 default:
                     throw new ArgumentException();
             }
@@ -151,6 +154,8 @@ namespace FFMPEGNeos
                     return FFMPEGNeos.Config.GetValue(FFMPEGNeos.preferredAudioFormat);
                 case MediaType.IMAGE:
                     return FFMPEGNeos.Config.GetValue(FFMPEGNeos.preferredImageFormat);
+                case MediaType.TEXT:
+                    return "txt";
                 default:
                     throw new ArgumentException();
             }
@@ -160,7 +165,8 @@ namespace FFMPEGNeos
         {
             VIDEO,
             IMAGE,
-            AUDIO
+            AUDIO,
+            TEXT
         }
     }
 }

@@ -23,8 +23,8 @@ namespace FFMpegNeos.Tests
             Console.WriteLine(DateTime.Now.ToString("hh:mm:ss"));
 
             /// Metadata
-            //var command = $"-i {inputPath}";
-            //FFMpegWrapper.RunFFScript(FFMPEGInterface.FFPROBE, command, hidden: false); -c:a aac copy
+            var command = $"-i {inputPath} -show_format -v quiet";
+            FFMpegWrapper.RunFFScript(FFMPEGInterface.FFPROBE, command, hidden: false);
 
             /// Extract audio from video
             // var command = $"-i {inputPath} -vn {outputAudio}";
@@ -35,8 +35,8 @@ namespace FFMpegNeos.Tests
             //FFMpegWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, hidden: false);
 
             /// Extract one snapshot from a video given a time
-            var command = $"-ss {outputTime1} -i {inputPath} -vframes {outputQuantity} -q:v {outputQuality} {outputFrame}";
-            FFMpegWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, hidden: false);
+            //var command = $"-ss {outputTime1} -i {inputPath} -vframes {outputQuantity} -q:v {outputQuality} {outputFrame}";
+            //FFMpegWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, hidden: false);
 
             /// Extract many snapshots from a video given a time range (optionally, skip frames with -vf fps=1/10!)
             //Directory.CreateDirectory("range");

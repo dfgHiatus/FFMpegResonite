@@ -91,6 +91,9 @@
     <Compile Include="FFMPEGInterface.cs" />
     <Compile Include="FFMPEGNeos.cs" />
     <Compile Include="FFMPEGWrapper.cs" />
+    <Compile Include="GIFConverter.cs" />
+    <Compile Include="MediaManagerUI.cs" />
+    <Compile Include="MP3Converter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MediaManager.cs" />
   </ItemGroup>

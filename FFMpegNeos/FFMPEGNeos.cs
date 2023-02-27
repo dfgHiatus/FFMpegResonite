@@ -27,6 +27,7 @@ namespace FFMPEGNeos
         internal static ModConfiguration Config;
 
         private static Regex validTimes = new Regex(@"[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]{1,3})?");
+        private static Regex validFraction = new Regex(@"[0-9]+/[0-9]+");
         
         [AutoRegisterConfigKey]
         public static ModConfigurationKey<bool> overwrite = new ModConfigurationKey<bool>("overwrite", "Overwrite files", () => true);
@@ -86,37 +87,39 @@ namespace FFMPEGNeos
                 return false;
             }
 
+            // For @IDEAs that need their own UI to be loaded
+            //Engine.Current.RunPostInit(() => {
+            //    DevCreateNewForm.AddAction("Editor", "Photo Manager", MediaManagerUI.Spawn);
+            //});
+
             return true;
         }
 
         [HarmonyPatch(typeof(VideoTextureProvider), "BuildInspectorUI", typeof(UIBuilder))]
         public class VideoTextureProviderPatch
         {
+            // We can't pass an instance into LocalPressed events, lambdas all the way!
             public static void Postfix(VideoTextureProvider __instance, UIBuilder ui)
             {
                 ui.Spacer(12f);
                 ui.Text("FFmpeg Utilities");
+                ui.Text("Input times must be of the format HH:MM:SS");
                 ui.Spacer(12f);
 
-                // Requires a custom editor
+                // @IDEA
                 // text = "Join video clips together";
                 // ui.Button(in text, ExtractAudioFromVideo.Extract(__instance));
 
-                // Requires a custom editor
+                // @IDEA
                 // text = "Join images into video";
                 // ui.Button(in text, ExtractAudioFromVideo.Extract(__instance));
 
-                // Requires a custom editor
-                // text = "Join images into a video:";
-                // ui.Button(in text, ExtractAudioFromVideo.Extract(__instance));
-
-                var snapShot = ui.Button("Extract a snapshot from the video with the given time:");
-                var snapshotTime = ui.HorizontalElementWithLabel("Time", 0.2f, () => ui.TextField());
-                ui.Text("Time must be of the format HH:MM:SS");
+                var snapshotTime = ui.HorizontalElementWithLabel("Time", 0.5f, () => ui.TextField("00:00:00"));
+                var snapShot = ui.Button("Extract a snapshot from the video with the given time");
                 ui.Spacer(12f);
                 snapShot.LocalPressed += (IButton button, ButtonEventData eventData) =>
                 {
-                    if (!IsValidTimeString(snapshotTime.Text.Content.Value))
+                    if (!IsValidTime(snapshotTime.Text.Content.Value))
                     {
                         button.LabelText = __instance.GetLocalized("General.FAILED");
                         button.Enabled = false;
@@ -136,16 +139,65 @@ namespace FFMPEGNeos
                     });
                 };
 
-                var subVideo = ui.Button("Create a subvideo with the following start and end times:");
-                var startTimeSubvideo = ui.HorizontalElementWithLabel("Start", 0.2f, () => ui.TextField());
-                var endTimeSubvideo = ui.HorizontalElementWithLabel("End", 0.2f, () => ui.TextField());
-                ui.Text("Times must be of the format HH:MM:SS");
+                var startTimeFrames = ui.HorizontalElementWithLabel("Start", 0.5f, () => ui.TextField("00:00:00"));
+                var endTimeFrames = ui.HorizontalElementWithLabel("End", 0.5f, () => ui.TextField("00:00:00"));
+                var optionalFrameRate = ui.HorizontalElementWithLabel("Optional frame rate modifier", 0.5f, () => ui.TextField());
+                ui.Text("Framerate modifer must be a fraction seperated by a slash, IE 1/10");
+                var frames = ui.Button("Extract all images from time span");
+                ui.Spacer(12f);
+                frames.LocalPressed += (IButton button, ButtonEventData eventData) =>
+                {
+                    if (!IsValidTimeRange(startTimeFrames.Text.Content.Value, endTimeFrames.Text.Content.Value))
+                    {
+                        button.LabelText = __instance.GetLocalized("General.FAILED");
+                        button.Enabled = false;
+                        return;
+                    }
+
+                    if (!string.IsNullOrEmpty(optionalFrameRate.Text.Content.Value))
+                    {
+                        if (!IsValidFrameRate(optionalFrameRate.Text.Content.Value))
+                        {
+                            button.LabelText = __instance.GetLocalized("General.FAILED");
+                            button.Enabled = false;
+                            return;
+                        }
+                    }
+
+                    __instance.StartTask(async () =>
+                    {
+                        var result = await MediaManager.PrepareMedia(__instance, returnMediaType: MediaType.IMAGE, button);
+                        if (!result.success) return;
+
+                        var dir = Path.Combine(CachePath, "range");
+                        if (Directory.Exists(dir))
+                            Directory.Delete(dir);
+
+                        // TODO find a way to cache these?
+                        Directory.CreateDirectory(dir);
+
+                        string command;
+                        if (string.IsNullOrEmpty(optionalFrameRate.Text.Content.Value))
+                            command = $"-ss {startTimeFrames.Text.Content.Value} -to {endTimeFrames.Text.Content.Value} -i {result.inputName} -q:v {Config.GetValue(preferredImageQuality)} {Path.Combine(dir, "output_%03d.jpg")}";
+                        else
+                            command = $"-ss {startTimeFrames.Text.Content.Value} -to {endTimeFrames.Text.Content.Value} -i {result.inputName} -q:v {Config.GetValue(preferredImageQuality)} -vf fps={optionalFrameRate.Text.Content.Value} {Path.Combine(dir, "output_%03d.jpg")}";
+
+                        if (await FFMPEGWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, Config.GetValue(overwrite), Config.GetValue(dontCreateConsole)))
+                        {
+                            MediaManager.ImportMedia(__instance.Slot, MediaType.IMAGE, Directory.GetFiles(dir), button);
+                        }
+                    });
+                };
+
+                var startTimeSubvideo = ui.HorizontalElementWithLabel("Start", 0.5f, () => ui.TextField("00:00:00"));
+                var endTimeSubvideo = ui.HorizontalElementWithLabel("End", 0.5f, () => ui.TextField("00:00:00"));
+                var subVideo = ui.Button("Create a subvideo with the following start and end times");
                 ui.Spacer(12f);
                 subVideo.LocalPressed += (IButton button, ButtonEventData eventData) =>
                 {
                     __instance.StartTask(async () =>
                     {
-                        if (!(IsValidTimeString(startTimeSubvideo.Text.Content.Value) && IsValidTimeString(endTimeSubvideo.Text.Content.Value)))
+                        if (!IsValidTimeRange(startTimeSubvideo.Text.Content.Value, endTimeSubvideo.Text.Content.Value))
                         {
                             button.LabelText = __instance.GetLocalized("General.FAILED");
                             button.Enabled = false;
@@ -163,8 +215,7 @@ namespace FFMPEGNeos
                     });
                 };
 
-                var mute = ui.Button("Mute the audio of a video file");
-                ui.Spacer(12f);
+                var mute = ui.Button("Mute audio in video");
                 mute.LocalPressed += (IButton button, ButtonEventData eventData) =>
                 {
                     __instance.StartTask(async () =>
@@ -181,7 +232,6 @@ namespace FFMPEGNeos
                 };
 
                 var extract = ui.Button("Extract audio from video");
-                ui.Spacer(12f);
                 extract.LocalPressed += (IButton button, ButtonEventData eventData) =>
                 {
                     __instance.StartTask(async () =>
@@ -196,12 +246,27 @@ namespace FFMPEGNeos
                         }
                     });
                 };
+
+                ui.Spacer(12f);
             }
         }
 
-        private static bool IsValidTimeString(string canidate)
+        private static bool IsValidTime(string canidate)
         {
-            return validTimes.IsMatch(canidate);
+            return validTimes.IsMatch(canidate) && canidate.Length == 8;
+        }
+
+        private static bool IsValidTimeRange(string start, string end)
+        {
+            if (!(IsValidTime(start) && IsValidTime(end)))
+                return false;
+
+            return DateTime.Parse(start) <= DateTime.Parse(end);
+        }
+
+        private static bool IsValidFrameRate(string canidate)
+        {
+            return validFraction.IsMatch(canidate);
         }
     }
 }
