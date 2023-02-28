@@ -4,14 +4,13 @@ using FrooxEngine;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace FFMPEGNeos
 {
     internal static class MediaManager
     {
-        internal static async Task<(bool success, string inputName, string convertedName)> PrepareMedia(VideoTextureProvider videoTextureProvider, MediaType returnMediaType, IButton button = null)
+        internal static async Task<(bool success, string inputName, string convertedName)> PrepareMedia(VideoTextureProvider videoTextureProvider, AssetClass returnAssetClass, IButton button = null)
         {
             UpdateButtonState(videoTextureProvider.Slot, enabled: false, "General.Processing", button);
 
@@ -29,16 +28,16 @@ namespace FFMPEGNeos
                 return (false, string.Empty, string.Empty);
             }
             
-            AcquireMediaOutput(returnMediaType, exportName, out var inputName, out var convertedName);
+            AcquireMediaOutput(returnAssetClass, exportName, out var inputName, out var convertedName);
 
             return (true, inputName, convertedName);
         }
 
-        internal static async void ImportMedia(Slot slot, MediaType returnMediaType, IEnumerable<string> importedNames, IButton button = null)
+        internal static async void ImportMedia(Slot slot, AssetClass returnAssetClass, IEnumerable<string> importedNames, IButton button = null)
         {
             await default(ToWorld);
             UniversalImporter.Import(
-                DetectMediaType(returnMediaType),
+                returnAssetClass,
                 importedNames,
                 slot.World,
                 slot.GlobalPosition + (slot.Forward * -0.1f),
@@ -48,11 +47,11 @@ namespace FFMPEGNeos
             UpdateButtonState(slot, enabled: true, "General.Done", button);
         }
 
-        internal static async void ImportMedia(Slot slot, MediaType returnMediaType, string importName, IButton button = null)
+        internal static async void ImportMedia(Slot slot, AssetClass returnAssetClass, string importName, IButton button = null)
         {
             await default(ToWorld);
             UniversalImporter.Import(
-                DetectMediaType(returnMediaType),
+                returnAssetClass,
                 new List<string>() { importName },
                 slot.World,
                 slot.GlobalPosition + (slot.Forward * -0.1f),
@@ -62,7 +61,7 @@ namespace FFMPEGNeos
             UpdateButtonState(slot, enabled: true, "General.Done", button);
         }
         
-        private static void AcquireMediaOutput(MediaType returnMediaType, string exportName, out string inputName, out string convertedName)
+        private static void AcquireMediaOutput(AssetClass returnAssetClass, string exportName, out string inputName, out string convertedName)
         {
             inputName = Path.GetFullPath(Path.Combine(
                 FFMPEGNeos.CachePath,
@@ -72,7 +71,7 @@ namespace FFMPEGNeos
                 "converted_" +
                 Path.GetFileNameWithoutExtension(exportName) +
                 "." +
-                GetMediaSuffix(returnMediaType)));
+                GetMediaSuffix(returnAssetClass)));
         }
 
         private static bool TryGetVideoExportable(VideoTextureProvider videoTextureProvider, out VideoExportable videoExportable, out string parsedName)
@@ -127,46 +126,21 @@ namespace FFMPEGNeos
             await default(ToBackground);
         }
 
-        private static AssetClass DetectMediaType(MediaType mediaType)
+        private static string GetMediaSuffix(AssetClass AssetClass)
         {
-            switch (mediaType)
+            switch (AssetClass)
             {
-                case MediaType.VIDEO:
-                    return AssetClass.Video;
-                case MediaType.AUDIO:
-                    return AssetClass.Audio;
-                case MediaType.IMAGE:
-                    return AssetClass.Texture;
-                case MediaType.TEXT:
-                    return AssetClass.Text;
-                default:
-                    throw new ArgumentException();
-            }
-        }
-
-        private static string GetMediaSuffix(MediaType mediaType)
-        {
-            switch (mediaType)
-            {
-                case MediaType.VIDEO:
+                case AssetClass.Video:
                     return FFMPEGNeos.Config.GetValue(FFMPEGNeos.preferredVideoFormat);
-                case MediaType.AUDIO:
+                case AssetClass.Audio:
                     return FFMPEGNeos.Config.GetValue(FFMPEGNeos.preferredAudioFormat);
-                case MediaType.IMAGE:
+                case AssetClass.Texture:
                     return FFMPEGNeos.Config.GetValue(FFMPEGNeos.preferredImageFormat);
-                case MediaType.TEXT:
+                case AssetClass.Text:
                     return "txt";
                 default:
                     throw new ArgumentException();
             }
-        }
-
-        public enum MediaType
-        {
-            VIDEO,
-            IMAGE,
-            AUDIO,
-            TEXT
         }
     }
 }

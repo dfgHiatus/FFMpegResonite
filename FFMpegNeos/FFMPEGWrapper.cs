@@ -30,7 +30,7 @@ namespace FFMPEGNeos
                 }
         
                 process.StartInfo.UseShellExecute = true;
-                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.CreateNoWindow = true; // Doesn't actually hide the window?
                 process.Start();
                 await process.WaitForExitAsync();
                 return true;

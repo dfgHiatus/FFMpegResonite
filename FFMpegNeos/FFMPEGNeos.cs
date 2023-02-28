@@ -1,4 +1,5 @@
-﻿using FrooxEngine;
+﻿using CodeX;
+using FrooxEngine;
 using FrooxEngine.UIX;
 using HarmonyLib;
 using NeosModLoader;
@@ -48,7 +49,7 @@ namespace FFMPEGNeos
         public static ModConfigurationKey<string> preferredAudioFormat = new ModConfigurationKey<string>("preferredAudioFormat", "Preferred audio format", () => "ogg");
 
         [AutoRegisterConfigKey]
-        public static ModConfigurationKey<string> preferredImageFormat = new ModConfigurationKey<string>("preferredImageFormat", "Preferred image format", () => "jpg");
+        public static ModConfigurationKey<string> preferredImageFormat = new ModConfigurationKey<string>("preferredImageFormat", "Preferred texture format", () => "jpg");
 
         [AutoRegisterConfigKey]
         public static ModConfigurationKey<int> preferredImageQuality = new ModConfigurationKey<int>("preferredImageQuality", "Preferred image quality", () => 2);
@@ -131,13 +132,13 @@ namespace FFMPEGNeos
 
                     __instance.StartTask(async () =>
                     {
-                        var result = await MediaManager.PrepareMedia(__instance, returnMediaType: MediaType.IMAGE, button);
+                        var result = await MediaManager.PrepareMedia(__instance, returnAssetClass: AssetClass.Texture, button);
                         if (!result.success) return;
 
                         var command = $"-ss {snapshotTime.Text.Content.Value} -i {result.inputName} -vframes 1 -q:v {Config.GetValue(preferredImageQuality)} {result.convertedName}";
                         if (await FFMPEGWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, Config.GetValue(overwrite), Config.GetValue(dontCreateConsole)))
                         {
-                            MediaManager.ImportMedia(__instance.Slot, MediaType.IMAGE, result.convertedName, button);
+                            MediaManager.ImportMedia(__instance.Slot, AssetClass.Texture, result.convertedName, button);
                         }
                     });
                 };
@@ -169,7 +170,7 @@ namespace FFMPEGNeos
 
                     __instance.StartTask(async () =>
                     {
-                        var result = await MediaManager.PrepareMedia(__instance, returnMediaType: MediaType.IMAGE, button);
+                        var result = await MediaManager.PrepareMedia(__instance, returnAssetClass: AssetClass.Texture, button);
                         if (!result.success) return;
 
                         var dir = Path.Combine(CachePath, "range");
@@ -187,14 +188,14 @@ namespace FFMPEGNeos
 
                         if (await FFMPEGWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, Config.GetValue(overwrite), Config.GetValue(dontCreateConsole)))
                         {
-                            MediaManager.ImportMedia(__instance.Slot, MediaType.IMAGE, Directory.GetFiles(dir), button);
+                            MediaManager.ImportMedia(__instance.Slot, AssetClass.Texture, Directory.GetFiles(dir), button);
                         }
                     });
                 };
 
                 var startTimeSubvideo = ui.HorizontalElementWithLabel("Start", 0.5f, () => ui.TextField("00:00:00"));
                 var endTimeSubvideo = ui.HorizontalElementWithLabel("End", 0.5f, () => ui.TextField("00:00:00"));
-                var subVideo = ui.Button("Create a subvideo with the following start and end times");
+                var subVideo = ui.Button("Create a sub-video with the following start and end times");
                 ui.Spacer(12f);
                 subVideo.LocalPressed += (IButton button, ButtonEventData eventData) =>
                 {
@@ -207,13 +208,13 @@ namespace FFMPEGNeos
                             return;
                         }
                         
-                        var result = await MediaManager.PrepareMedia(__instance, returnMediaType: MediaType.VIDEO, button);
+                        var result = await MediaManager.PrepareMedia(__instance, returnAssetClass: AssetClass.Video, button);
                         if (!result.success) return;
 
                         var command = $"-ss {startTimeSubvideo.Text.Content.Value} -to {endTimeSubvideo.Text.Content.Value} -i {result.inputName} -c:v copy -c:a copy {result.convertedName}";
                         if (await FFMPEGWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, Config.GetValue(overwrite), Config.GetValue(dontCreateConsole)))
                         {
-                            MediaManager.ImportMedia(__instance.Slot, MediaType.VIDEO, result.convertedName, button);
+                            MediaManager.ImportMedia(__instance.Slot, AssetClass.Video, result.convertedName, button);
                         }
                     });
                 };
@@ -223,13 +224,13 @@ namespace FFMPEGNeos
                 {
                     __instance.StartTask(async () =>
                     {
-                        var result = await MediaManager.PrepareMedia(__instance, MediaType.VIDEO, button);
+                        var result = await MediaManager.PrepareMedia(__instance, AssetClass.Video, button);
                         if (!result.success) return;
 
                         var command = $"-i {result.inputName} -an {result.convertedName}";
                         if (await FFMPEGWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, Config.GetValue(overwrite), Config.GetValue(dontCreateConsole)))
                         {
-                            MediaManager.ImportMedia(__instance.Slot, MediaType.VIDEO, result.convertedName, button);
+                            MediaManager.ImportMedia(__instance.Slot, AssetClass.Video, result.convertedName, button);
                         }
                     });
                 };
@@ -239,13 +240,13 @@ namespace FFMPEGNeos
                 {
                     __instance.StartTask(async () =>
                     {
-                        var result = await MediaManager.PrepareMedia(__instance, returnMediaType: MediaType.AUDIO, button);
+                        var result = await MediaManager.PrepareMedia(__instance, returnAssetClass: AssetClass.Audio, button);
                         if (!result.success) return;
 
                         var command = $"-i {result.inputName} -vn {result.convertedName}";
                         if (await FFMPEGWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, Config.GetValue(overwrite), Config.GetValue(dontCreateConsole)))
                         {
-                            MediaManager.ImportMedia(__instance.Slot, MediaType.AUDIO, result.convertedName, button);
+                            MediaManager.ImportMedia(__instance.Slot, AssetClass.Audio, result.convertedName, button);
                         }
                     });
                 };

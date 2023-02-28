@@ -68,7 +68,7 @@
 //                    }
 
 //                    await FFMPEGWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, hidden: false);
-//                    MediaManager.ImportMedia(targetSlot, MediaType.VIDEO, importName);
+//                    MediaManager.ImportMedia(targetSlot, AssetClass.VIDEO, importName);
 
 //                });
 
