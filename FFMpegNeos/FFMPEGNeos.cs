@@ -4,13 +4,14 @@ using FrooxEngine.UIX;
 using HarmonyLib;
 using NeosModLoader;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using static FFMPEGNeos.MediaManager;
 
 namespace FFMPEGNeos
 {
-    public class FFMPEGNeos : NeosMod
+    public sealed class FFMPEGNeos : NeosMod
     {
         public override string Name => "FFMpegNeos";
         public override string Author => "dfgHiatus";
@@ -30,8 +31,8 @@ namespace FFMPEGNeos
         private const string InvalidTimeRange = "Invalid time range was provided!";
         private const string InvalidFrameRate = "Invalid frame rate modifier was provided!";
 
-        private static Regex validTimes = new Regex(@"[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]{1,3})?");
-        private static Regex validFraction = new Regex(@"[0-9]+/[0-9]+");
+        private static readonly Regex validTimes = new Regex(@"[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]{1,3})?");
+        private static readonly Regex validFraction = new Regex(@"[0-9]+/[0-9]+");
         
         [AutoRegisterConfigKey]
         public static ModConfigurationKey<bool> overwrite = new ModConfigurationKey<bool>("overwrite", "Overwrite files", () => true);
@@ -98,6 +99,7 @@ namespace FFMPEGNeos
 
             return true;
         }
+        
 
         [HarmonyPatch(typeof(VideoTextureProvider), "BuildInspectorUI", typeof(UIBuilder))]
         public class VideoTextureProviderPatch
@@ -132,7 +134,7 @@ namespace FFMPEGNeos
 
                     __instance.StartTask(async () =>
                     {
-                        var result = await MediaManager.PrepareMedia(__instance, returnAssetClass: AssetClass.Texture, button);
+                        var result = await MediaManager.PrepareVideo(__instance, returnAssetClass: AssetClass.Texture, button);
                         if (!result.success) return;
 
                         var command = $"-ss {snapshotTime.Text.Content.Value} -i {result.inputName} -vframes 1 -q:v {Config.GetValue(preferredImageQuality)} {result.convertedName}";
@@ -170,7 +172,7 @@ namespace FFMPEGNeos
 
                     __instance.StartTask(async () =>
                     {
-                        var result = await MediaManager.PrepareMedia(__instance, returnAssetClass: AssetClass.Texture, button);
+                        var result = await MediaManager.PrepareVideo(__instance, returnAssetClass: AssetClass.Texture, button);
                         if (!result.success) return;
 
                         var dir = Path.Combine(CachePath, "range");
@@ -208,7 +210,7 @@ namespace FFMPEGNeos
                             return;
                         }
                         
-                        var result = await MediaManager.PrepareMedia(__instance, returnAssetClass: AssetClass.Video, button);
+                        var result = await MediaManager.PrepareVideo(__instance, returnAssetClass: AssetClass.Video, button);
                         if (!result.success) return;
 
                         var command = $"-ss {startTimeSubvideo.Text.Content.Value} -to {endTimeSubvideo.Text.Content.Value} -i {result.inputName} -c:v copy -c:a copy {result.convertedName}";
@@ -224,7 +226,7 @@ namespace FFMPEGNeos
                 {
                     __instance.StartTask(async () =>
                     {
-                        var result = await MediaManager.PrepareMedia(__instance, AssetClass.Video, button);
+                        var result = await MediaManager.PrepareVideo(__instance, AssetClass.Video, button);
                         if (!result.success) return;
 
                         var command = $"-i {result.inputName} -an {result.convertedName}";
@@ -240,7 +242,7 @@ namespace FFMPEGNeos
                 {
                     __instance.StartTask(async () =>
                     {
-                        var result = await MediaManager.PrepareMedia(__instance, returnAssetClass: AssetClass.Audio, button);
+                        var result = await MediaManager.PrepareVideo(__instance, returnAssetClass: AssetClass.Audio, button);
                         if (!result.success) return;
 
                         var command = $"-i {result.inputName} -vn {result.convertedName}";

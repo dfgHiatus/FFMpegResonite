@@ -1,11 +1,11 @@
 ﻿//using FrooxEngine;
 //namespace FFMPEGNeos
 //{
-//    internal class MediaManagerUI
+//    internal sealed class MediaManagerUI
 //    {
 //        public static void Spawn(Slot s)
 //        {
-            
+
 //        }
 //    }
 //}

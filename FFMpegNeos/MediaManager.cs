@@ -10,7 +10,7 @@ namespace FFMPEGNeos
 {
     internal static class MediaManager
     {
-        internal static async Task<(bool success, string inputName, string convertedName)> PrepareMedia(VideoTextureProvider videoTextureProvider, AssetClass returnAssetClass, IButton button = null)
+        internal static async Task<(bool success, string inputName, string convertedName)> PrepareVideo(VideoTextureProvider videoTextureProvider, AssetClass returnAssetClass, IButton button = null)
         {
             UpdateButtonState(videoTextureProvider.Slot, enabled: false, "General.Processing", button);
 
