@@ -22,7 +22,6 @@ public class ImporterPatch
 
         foreach (var file in files)
         {
-            UniLog.Log(Path.GetExtension(file).ToLower());
             switch (Path.GetExtension(file).ToLower())
             {
                 case MP3:
