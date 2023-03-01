@@ -33,7 +33,7 @@ namespace FFMPEGNeos.Converters
                 }
 
                 await default(ToWorld);
-                UniversalImporter.Import(AssetClass.Video, mp4s, world, pos, rot);
+                UniversalImporter.Import(AssetClass.Video, mp4s, world, pos, rot, silent: FFMPEGNeos.Config.GetValue(FFMPEGNeos.importRawFiles));
             });
         }
     }

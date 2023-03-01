@@ -38,6 +38,9 @@ namespace FFMPEGNeos
         public static ModConfigurationKey<bool> overwrite = new ModConfigurationKey<bool>("overwrite", "Overwrite files", () => true);
 
         [AutoRegisterConfigKey]
+        public static ModConfigurationKey<bool> importRawFiles = new ModConfigurationKey<bool>("importRawFiles", "Import raw versions of converted files", () => true);
+
+        [AutoRegisterConfigKey]
         public static ModConfigurationKey<bool> dontCreateConsole = new ModConfigurationKey<bool>("dontCreateConsole", "Hide FFMPEG output", () => true);
 
         [AutoRegisterConfigKey]
