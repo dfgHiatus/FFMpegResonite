@@ -41,10 +41,7 @@ namespace FFMPEGNeos
         public static ModConfigurationKey<bool> importRawFiles = new ModConfigurationKey<bool>("importRawFiles", "Import raw versions of converted files", () => true);
 
         [AutoRegisterConfigKey]
-        public static ModConfigurationKey<bool> dontCreateConsole = new ModConfigurationKey<bool>("dontCreateConsole", "Hide FFMPEG output", () => true);
-
-        [AutoRegisterConfigKey]
-        public static ModConfigurationKey<bool> importFilesRaw = new ModConfigurationKey<bool>("importFilesRaw", "Import raw files", () => false);
+        public static ModConfigurationKey<bool> dontCreateConsole = new ModConfigurationKey<bool>("dontCreateConsole", "Hide FFmpeg output", () => true);
 
         [AutoRegisterConfigKey]
         public static ModConfigurationKey<string> preferredVideoFormat = new ModConfigurationKey<string>("preferredVideoFormat", "Preferred video format", () => "mp4");
@@ -56,7 +53,7 @@ namespace FFMPEGNeos
         public static ModConfigurationKey<string> preferredImageFormat = new ModConfigurationKey<string>("preferredImageFormat", "Preferred texture format", () => "jpg");
 
         [AutoRegisterConfigKey]
-        public static ModConfigurationKey<int> preferredImageQuality = new ModConfigurationKey<int>("preferredImageQuality", "Preferred image quality", () => 2);
+        public static ModConfigurationKey<int> preferredImageQuality = new ModConfigurationKey<int>("preferredImageQuality", "Preferred image quality. Don't touch this unless you know what you're doing", () => 2);
 
         public override void DefineConfiguration(ModConfigurationDefinitionBuilder builder)
         {
