@@ -20,20 +20,20 @@ namespace FFMPEGNeos.Converters
                 {
                     var convertedFilename = Path.Combine(
                         FFMPEGNeos.CachePath,
-                        Path.GetFileNameWithoutExtension(gif) + "." + FFMPEGNeos.Config.GetValue(FFMPEGNeos.preferredVideoFormat)); 
+                        Path.GetFileNameWithoutExtension(gif) + "." + FFMPEGNeos.Config.GetValue(FFMPEGNeos.PreferredVideoFormat)); 
                     var command = $"-i {gif} -pix_fmt yuv420p {convertedFilename}"; // Defaults to "mp4"
                     if (await FFMPEGWrapper.RunFFScript( 
                         FFMPEGInterface.FFPMEG, 
                         command, 
-                        overwrite: FFMPEGNeos.Config.GetValue(FFMPEGNeos.overwrite), 
-                        hidden: FFMPEGNeos.Config.GetValue(FFMPEGNeos.dontCreateConsole)))
+                        overwrite: FFMPEGNeos.Config.GetValue(FFMPEGNeos.Overwrite), 
+                        hidden: FFMPEGNeos.Config.GetValue(FFMPEGNeos.DontCreateConsole)))
                     {
                         mp4s.Add(convertedFilename);
                     }
                 }
 
                 await default(ToWorld);
-                UniversalImporter.Import(AssetClass.Video, mp4s, world, pos, rot, silent: FFMPEGNeos.Config.GetValue(FFMPEGNeos.importRawFiles));
+                UniversalImporter.Import(AssetClass.Video, mp4s, world, pos, rot, silent: FFMPEGNeos.Config.GetValue(FFMPEGNeos.ImportRawFiles));
             });
         }
     }

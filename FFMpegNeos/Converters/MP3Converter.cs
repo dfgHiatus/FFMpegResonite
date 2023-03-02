@@ -20,20 +20,20 @@ namespace FFMPEGNeos.Converters
                 {
                     var convertedFilename = Path.Combine(
                         FFMPEGNeos.CachePath, 
-                        Path.GetFileNameWithoutExtension(mp3) + "." + FFMPEGNeos.Config.GetValue(FFMPEGNeos.preferredAudioFormat)); 
+                        Path.GetFileNameWithoutExtension(mp3) + "." + FFMPEGNeos.Config.GetValue(FFMPEGNeos.PreferredAudioFormat)); 
                     var command = $"-i {mp3} -c:a libvorbis {convertedFilename}"; // Defaults to "ogg"
                     if (await FFMPEGWrapper.RunFFScript(
                         FFMPEGInterface.FFPMEG,
                         command,
-                        overwrite: FFMPEGNeos.Config.GetValue(FFMPEGNeos.overwrite),
-                        hidden: FFMPEGNeos.Config.GetValue(FFMPEGNeos.dontCreateConsole)))
+                        overwrite: FFMPEGNeos.Config.GetValue(FFMPEGNeos.Overwrite),
+                        hidden: FFMPEGNeos.Config.GetValue(FFMPEGNeos.DontCreateConsole)))
                     {
                         oggs.Add(convertedFilename);
                     }
                 }
 
                 await default(ToWorld);
-                UniversalImporter.Import(AssetClass.Audio, oggs, world, pos, rot, silent: FFMPEGNeos.Config.GetValue(FFMPEGNeos.importRawFiles));
+                UniversalImporter.Import(AssetClass.Audio, oggs, world, pos, rot, silent: FFMPEGNeos.Config.GetValue(FFMPEGNeos.ImportRawFiles));
             });
         }
     }
