@@ -26,16 +26,26 @@
     <Reference Include="FrooxEngine">
       <HintPath>$(NeosPath)Neos_Data/Managed/FrooxEngine.dll</HintPath>
     </Reference>
+    <Reference Include="System.ValueTuple">
+      <HintPath>$(NeosPath)Neos_Data/Managed/System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="NeosModLoader">
       <HintPath Condition="Exists('$(NeosPath)NeosModLoader.dll')">$(NeosPath)NeosModLoader.dll</HintPath>
       <HintPath Condition="Exists('$(NeosPath)Libraries/NeosModLoader.dll')">$(NeosPath)Libraries/NeosModLoader.dll</HintPath>
     </Reference>
+    <Reference Include="HarmonyLib">
+      <HintPath Condition="Exists('$(NeosPath)0Harmony.dll')">$(NeosPath)0Harmony.dll</HintPath>
+      <HintPath Condition="Exists('$(NeosPath)nml_libs/0Harmony.dll')">$(NeosPath)nml_libs/0Harmony.dll</HintPath>
+    </Reference>
+    <!-- 
     <Reference Include="System.Drawing.Design" />
     <Reference Include="System.Drawing.Primitives">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(NeosPath)Neos_Data/Managed/System.Drawing.Primitives.dll</HintPath>
     </Reference>
+    -->
   </ItemGroup>
+  <!--
   <ItemGroup>
     <PackageReference Include="FFMpegCore" Version="5.0.2" />
     <PackageReference Include="Instances" Version="3.0.0" />
@@ -49,6 +59,7 @@
     <PackageReference Include="System.Text.Json" Version="7.0.2" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
   </ItemGroup>
+  -->
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetDir)\$(TargetFileName)" "$(NeosPath)nml_mods/"</PostBuildEvent>
   </PropertyGroup>
