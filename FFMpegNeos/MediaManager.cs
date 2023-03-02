@@ -14,17 +14,15 @@ namespace FFMPEGNeos
         {
             UpdateButtonState(videoTextureProvider.Slot, enabled: false, "General.Processing", button);
 
-            if (!TryGetVideoExportable(videoTextureProvider, out VideoExportable videoExportable, out string exportName))
+            if (!TryGetVideoExportable(videoTextureProvider, out var videoExportable, out var exportName))
             {
                 UpdateButtonState(videoTextureProvider.Slot, enabled: true, "General.FAILED", button);
-
                 return (false, string.Empty, string.Empty);
             }
 
             if (!await TryExportVideo(videoExportable, exportName))
             {
                 UpdateButtonState(videoTextureProvider.Slot, enabled: true, "General.FAILED", button);
-
                 return (false, string.Empty, string.Empty);
             }
             
@@ -131,11 +129,11 @@ namespace FFMPEGNeos
             switch (AssetClass)
             {
                 case AssetClass.Video:
-                    return FFMPEGNeos.Config.GetValue(FFMPEGNeos.preferredVideoFormat);
+                    return FFMPEGNeos.Config.GetValue(FFMPEGNeos.PreferredVideoFormat);
                 case AssetClass.Audio:
-                    return FFMPEGNeos.Config.GetValue(FFMPEGNeos.preferredAudioFormat);
+                    return FFMPEGNeos.Config.GetValue(FFMPEGNeos.PreferredAudioFormat);
                 case AssetClass.Texture:
-                    return FFMPEGNeos.Config.GetValue(FFMPEGNeos.preferredImageFormat);
+                    return FFMPEGNeos.Config.GetValue(FFMPEGNeos.PreferredImageFormat);
                 case AssetClass.Text:
                     return "txt";
                 default:

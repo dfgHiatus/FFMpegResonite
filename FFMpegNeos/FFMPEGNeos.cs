@@ -14,51 +14,56 @@ namespace FFMPEGNeos
     public sealed class FFMPEGNeos : NeosMod
     {
         public override string Name => "FFMpegNeos";
-        public override string Author => "dfgHiatus";
-        public override string Version => "1.0.0";
+        public override string Author => "dfgHiatus, Fro Zen";
+        public override string Version => "1.1.0";
         public override string Link => "https://github.com/dfgHiatus/FFMpegNeos/";
 
-        internal static readonly string CachePath = Path.GetFullPath(Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), 
-            "Temp",
-            "Solirax",
-            "NeosVR",
-            "Cache", 
-            "FFMPEG"));
+        internal static readonly string CachePath = Engine.Current.Platform == Platform.Windows
+            ? Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Temp", "Solirax", "NeosVR", "Cache", "FFMPEG"))
+            : Path.GetFullPath(Path.Combine(Path.GetTempPath(), "Solirax", "NeosVR", "Cache", "FFMPEG"));
         
         internal static ModConfiguration Config;
         private const string InvalidTime = "Invalid time was provided!";
         private const string InvalidTimeRange = "Invalid time range was provided!";
         private const string InvalidFrameRate = "Invalid frame rate modifier was provided!";
 
-        private static readonly Regex validTimes = new Regex(@"[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]{1,3})?");
-        private static readonly Regex validFraction = new Regex(@"[0-9]+/[0-9]+");
+        private static readonly Regex ValidTimes = new(@"[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]{1,3})?");
+        private static readonly Regex ValidFraction = new(@"[0-9]+/[0-9]+");
         
         [AutoRegisterConfigKey]
-        public static ModConfigurationKey<bool> overwrite = new ModConfigurationKey<bool>("overwrite", "Overwrite files", () => true);
+        public static ModConfigurationKey<bool> Overwrite = 
+            new("overwrite", "Overwrite files", () => true);
 
         [AutoRegisterConfigKey]
-        public static ModConfigurationKey<bool> importRawFiles = new ModConfigurationKey<bool>("importRawFiles", "Import raw versions of converted files", () => true);
+        public static ModConfigurationKey<bool> ImportRawFiles =
+            new("importRawFiles", "Import raw versions of converted files", () => true);
 
         [AutoRegisterConfigKey]
-        public static ModConfigurationKey<bool> dontCreateConsole = new ModConfigurationKey<bool>("dontCreateConsole", "Hide FFmpeg output", () => true);
+        public static ModConfigurationKey<bool> DontCreateConsole =
+            new("dontCreateConsole", "Hide FFmpeg output", () => true);
 
         [AutoRegisterConfigKey]
-        public static ModConfigurationKey<string> preferredVideoFormat = new ModConfigurationKey<string>("preferredVideoFormat", "Preferred video format", () => "mp4");
+        public static ModConfigurationKey<string> PreferredVideoFormat = 
+            new("preferredVideoFormat", "Preferred video format", () => "mp4");
 
         [AutoRegisterConfigKey]
-        public static ModConfigurationKey<string> preferredAudioFormat = new ModConfigurationKey<string>("preferredAudioFormat", "Preferred audio format", () => "ogg");
+        public static ModConfigurationKey<string> PreferredAudioFormat = 
+            new("preferredAudioFormat", "Preferred audio format", () => "ogg");
 
         [AutoRegisterConfigKey]
-        public static ModConfigurationKey<string> preferredImageFormat = new ModConfigurationKey<string>("preferredImageFormat", "Preferred texture format", () => "jpg");
+        public static ModConfigurationKey<string> PreferredImageFormat = 
+            new("preferredImageFormat", "Preferred texture format", () => "jpg");
 
         [AutoRegisterConfigKey]
-        public static ModConfigurationKey<int> preferredImageQuality = new ModConfigurationKey<int>("preferredImageQuality", "Preferred image quality. Don't touch this unless you know what you're doing", () => 2);
+        public static ModConfigurationKey<int> PreferredImageQuality = 
+            new("preferredImageQuality", "Preferred image quality. Don't touch this unless you know what you're doing",
+                () => 2);
 
         public override void DefineConfiguration(ModConfigurationDefinitionBuilder builder)
         {
             builder
-                .Version(new Version(1, 0, 0))
+                .Version(new Version(1, 1, 0))
                 .AutoSave(true);
         }
 
@@ -66,7 +71,7 @@ namespace FFMPEGNeos
         {
             if (!Initialize()) return;
             Config = GetConfiguration();
-            Harmony harmony = new Harmony("net.dfgHiatus.FFMPEGNeos");
+            var harmony = new Harmony("net.dfgHiatus.FFMPEGNeos");
             harmony.PatchAll();
         }
 
@@ -123,7 +128,7 @@ namespace FFMPEGNeos
                 var snapshotTime = ui.HorizontalElementWithLabel("Time", 0.5f, () => ui.TextField("00:00:00"));
                 var snapShot = ui.Button("Extract a snapshot from the video with the given time");
                 ui.Spacer(12f);
-                snapShot.LocalPressed += (IButton button, ButtonEventData eventData) =>
+                snapShot.LocalPressed += (button, _) =>
                 {
                     if (!IsValidTime(snapshotTime.Text.Content.Value))
                     {
@@ -134,13 +139,13 @@ namespace FFMPEGNeos
 
                     __instance.StartTask(async () =>
                     {
-                        var result = await MediaManager.PrepareVideo(__instance, returnAssetClass: AssetClass.Texture, button);
+                        var result = await PrepareVideo(__instance, returnAssetClass: AssetClass.Texture, button);
                         if (!result.success) return;
 
-                        var command = $"-ss {snapshotTime.Text.Content.Value} -i {result.inputName} -vframes 1 -q:v {Config.GetValue(preferredImageQuality)} {result.convertedName}";
-                        if (await FFMPEGWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, Config.GetValue(overwrite), Config.GetValue(dontCreateConsole)))
+                        var command = $"-ss {snapshotTime.Text.Content.Value} -i {result.inputName} -vframes 1 -q:v {Config.GetValue(PreferredImageQuality)} {result.convertedName}";
+                        if (await FFMPEGWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, Config.GetValue(Overwrite), Config.GetValue(DontCreateConsole)))
                         {
-                            MediaManager.ImportMedia(__instance.Slot, AssetClass.Texture, result.convertedName, button);
+                            ImportMedia(__instance.Slot, AssetClass.Texture, result.convertedName, button);
                         }
                     });
                 };
@@ -151,7 +156,7 @@ namespace FFMPEGNeos
                 ui.Text("Framerate modifer must be a fraction seperated by a slash, IE 1/10");
                 var frames = ui.Button("Extract all images from time span");
                 ui.Spacer(12f);
-                frames.LocalPressed += (IButton button, ButtonEventData eventData) =>
+                frames.LocalPressed += (button, _) =>
                 {
                     if (!IsValidTimeRange(startTimeFrames.Text.Content.Value, endTimeFrames.Text.Content.Value))
                     {
@@ -172,7 +177,7 @@ namespace FFMPEGNeos
 
                     __instance.StartTask(async () =>
                     {
-                        var result = await MediaManager.PrepareVideo(__instance, returnAssetClass: AssetClass.Texture, button);
+                        var result = await PrepareVideo(__instance, returnAssetClass: AssetClass.Texture, button);
                         if (!result.success) return;
 
                         var dir = Path.Combine(CachePath, "range");
@@ -182,16 +187,13 @@ namespace FFMPEGNeos
                         // TODO find a way to cache these?
                         Directory.CreateDirectory(dir);
 
-                        string command;
-                        if (string.IsNullOrEmpty(optionalFrameRate.Text.Content.Value))
-                            command = $"-ss {startTimeFrames.Text.Content.Value} -to {endTimeFrames.Text.Content.Value} -i {result.inputName} -q:v {Config.GetValue(preferredImageQuality)} {Path.Combine(dir, "output_%03d.jpg")}";
-                        else
-                            command = $"-ss {startTimeFrames.Text.Content.Value} -to {endTimeFrames.Text.Content.Value} -i {result.inputName} -q:v {Config.GetValue(preferredImageQuality)} -vf fps={optionalFrameRate.Text.Content.Value} {Path.Combine(dir, "output_%03d.jpg")}";
+                        var command = string.IsNullOrEmpty(optionalFrameRate.Text.Content.Value)
+                            ? $"-ss {startTimeFrames.Text.Content.Value} -to {endTimeFrames.Text.Content.Value} -i {result.inputName} -q:v {Config.GetValue(PreferredImageQuality)} {Path.Combine(dir, "output_%03d.jpg")}"
+                            : $"-ss {startTimeFrames.Text.Content.Value} -to {endTimeFrames.Text.Content.Value} -i {result.inputName} -q:v {Config.GetValue(PreferredImageQuality)} -vf fps={optionalFrameRate.Text.Content.Value} {Path.Combine(dir, "output_%03d.jpg")}";
 
-                        if (await FFMPEGWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, Config.GetValue(overwrite), Config.GetValue(dontCreateConsole)))
-                        {
-                            MediaManager.ImportMedia(__instance.Slot, AssetClass.Texture, Directory.GetFiles(dir), button);
-                        }
+                        if (await FFMPEGWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, Config.GetValue(Overwrite),
+                                Config.GetValue(DontCreateConsole)))
+                            ImportMedia(__instance.Slot, AssetClass.Texture, Directory.GetFiles(dir), button);
                     });
                 };
 
@@ -199,7 +201,7 @@ namespace FFMPEGNeos
                 var endTimeSubvideo = ui.HorizontalElementWithLabel("End", 0.5f, () => ui.TextField("00:00:00"));
                 var subVideo = ui.Button("Create a sub-video with the following start and end times");
                 ui.Spacer(12f);
-                subVideo.LocalPressed += (IButton button, ButtonEventData eventData) =>
+                subVideo.LocalPressed += (button, _) =>
                 {
                     __instance.StartTask(async () =>
                     {
@@ -210,46 +212,45 @@ namespace FFMPEGNeos
                             return;
                         }
                         
-                        var result = await MediaManager.PrepareVideo(__instance, returnAssetClass: AssetClass.Video, button);
+                        var result = await PrepareVideo(__instance, returnAssetClass: AssetClass.Video, button);
                         if (!result.success) return;
 
                         var command = $"-ss {startTimeSubvideo.Text.Content.Value} -to {endTimeSubvideo.Text.Content.Value} -i {result.inputName} -c:v copy -c:a copy {result.convertedName}";
-                        if (await FFMPEGWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, Config.GetValue(overwrite), Config.GetValue(dontCreateConsole)))
+                        if (await FFMPEGWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, Config.GetValue(Overwrite), Config.GetValue(DontCreateConsole)))
                         {
-                            MediaManager.ImportMedia(__instance.Slot, AssetClass.Video, result.convertedName, button);
+                            ImportMedia(__instance.Slot, AssetClass.Video, result.convertedName, button);
                         }
                     });
                 };
 
                 var mute = ui.Button("Mute audio in video");
-                mute.LocalPressed += (IButton button, ButtonEventData eventData) =>
+                mute.LocalPressed += (button, _) =>
                 {
                     __instance.StartTask(async () =>
                     {
-                        var result = await MediaManager.PrepareVideo(__instance, AssetClass.Video, button);
+                        var result = await PrepareVideo(__instance, AssetClass.Video, button);
                         if (!result.success) return;
 
                         var command = $"-i {result.inputName} -an {result.convertedName}";
-                        if (await FFMPEGWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, Config.GetValue(overwrite), Config.GetValue(dontCreateConsole)))
+                        if (await FFMPEGWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, Config.GetValue(Overwrite), Config.GetValue(DontCreateConsole)))
                         {
-                            MediaManager.ImportMedia(__instance.Slot, AssetClass.Video, result.convertedName, button);
+                            ImportMedia(__instance.Slot, AssetClass.Video, result.convertedName, button);
                         }
                     });
                 };
 
                 var extract = ui.Button("Extract audio from video");
-                extract.LocalPressed += (IButton button, ButtonEventData eventData) =>
+                extract.LocalPressed += (button, _) =>
                 {
                     __instance.StartTask(async () =>
                     {
-                        var result = await MediaManager.PrepareVideo(__instance, returnAssetClass: AssetClass.Audio, button);
+                        var result = await PrepareVideo(__instance, returnAssetClass: AssetClass.Audio, button);
                         if (!result.success) return;
 
                         var command = $"-i {result.inputName} -vn {result.convertedName}";
-                        if (await FFMPEGWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, Config.GetValue(overwrite), Config.GetValue(dontCreateConsole)))
-                        {
-                            MediaManager.ImportMedia(__instance.Slot, AssetClass.Audio, result.convertedName, button);
-                        }
+                        if (await FFMPEGWrapper.RunFFScript(FFMPEGInterface.FFPMEG, command, Config.GetValue(Overwrite),
+                                Config.GetValue(DontCreateConsole)))
+                            ImportMedia(__instance.Slot, AssetClass.Audio, result.convertedName, button);
                     });
                 };
 
@@ -257,10 +258,7 @@ namespace FFMPEGNeos
             }
         }
 
-        private static bool IsValidTime(string canidate)
-        {
-            return validTimes.IsMatch(canidate) && canidate.Length == 8;
-        }
+        private static bool IsValidTime(string candidate) => ValidTimes.IsMatch(candidate) && candidate.Length == 8;
 
         private static bool IsValidTimeRange(string start, string end)
         {
@@ -270,9 +268,6 @@ namespace FFMPEGNeos
             return DateTime.Parse(start) <= DateTime.Parse(end);
         }
 
-        private static bool IsValidFrameRate(string canidate)
-        {
-            return validFraction.IsMatch(canidate);
-        }
+        private static bool IsValidFrameRate(string candidate) => ValidFraction.IsMatch(candidate);
     }
 }
