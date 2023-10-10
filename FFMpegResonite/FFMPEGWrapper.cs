@@ -1,11 +1,11 @@
-﻿using BaseX;
+﻿using Elements.Core;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FFMPEGNeos
+namespace FFMPEGResonite
 {
     internal static class FFMPEGWrapper
     { 

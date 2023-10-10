@@ -1,12 +1,12 @@
-﻿using BaseX;
-using CodeX;
+﻿using Elements.Core;
+using Elements.Assets;
 using FrooxEngine;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace FFMPEGNeos
+namespace FFMPEGResonite
 {
     internal static class MediaManager
     {
@@ -62,10 +62,10 @@ namespace FFMPEGNeos
         private static void AcquireMediaOutput(AssetClass returnAssetClass, string exportName, out string inputName, out string convertedName)
         {
             inputName = Path.GetFullPath(Path.Combine(
-                FFMPEGNeos.CachePath,
+                FFMPEGResonite.CachePath,
                 exportName));
             convertedName = Path.GetFullPath(Path.Combine(
-                FFMPEGNeos.CachePath,
+                FFMPEGResonite.CachePath,
                 "converted_" +
                 Path.GetFileNameWithoutExtension(exportName) +
                 "." +
@@ -95,7 +95,7 @@ namespace FFMPEGNeos
             
             try
             {
-                var exported = await videoExport.Export(FFMPEGNeos.CachePath, exportName, 0).ConfigureAwait(false);
+                var exported = await videoExport.Export(FFMPEGResonite.CachePath, exportName, 0).ConfigureAwait(false);
                 if (!exported)
                 {
                     UniLog.Error("Video failed to export on 'Extract audio from video'");
@@ -129,11 +129,11 @@ namespace FFMPEGNeos
             switch (AssetClass)
             {
                 case AssetClass.Video:
-                    return FFMPEGNeos.Config.GetValue(FFMPEGNeos.PreferredVideoFormat);
+                    return FFMPEGResonite.Config.GetValue(FFMPEGResonite.PreferredVideoFormat);
                 case AssetClass.Audio:
-                    return FFMPEGNeos.Config.GetValue(FFMPEGNeos.PreferredAudioFormat);
+                    return FFMPEGResonite.Config.GetValue(FFMPEGResonite.PreferredAudioFormat);
                 case AssetClass.Texture:
-                    return FFMPEGNeos.Config.GetValue(FFMPEGNeos.PreferredImageFormat);
+                    return FFMPEGResonite.Config.GetValue(FFMPEGResonite.PreferredImageFormat);
                 case AssetClass.Text:
                     return "txt";
                 default:

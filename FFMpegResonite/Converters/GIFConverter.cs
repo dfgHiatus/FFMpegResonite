@@ -1,10 +1,10 @@
-﻿using BaseX;
-using CodeX;
+﻿using Elements.Core;
+using Elements.Assets;
 using FrooxEngine;
 using System.Collections.Generic;
 using System.IO;
 
-namespace FFMPEGNeos.Converters
+namespace FFMPEGResonite.Converters
 {
     internal class GIFConverter
     {
@@ -19,21 +19,21 @@ namespace FFMPEGNeos.Converters
                 foreach (var gif in gifs)
                 {
                     var convertedFilename = Path.Combine(
-                        FFMPEGNeos.CachePath,
-                        Path.GetFileNameWithoutExtension(gif) + "." + FFMPEGNeos.Config.GetValue(FFMPEGNeos.PreferredVideoFormat)); 
+                        FFMPEGResonite.CachePath,
+                        Path.GetFileNameWithoutExtension(gif) + "." + FFMPEGResonite.Config.GetValue(FFMPEGResonite.PreferredVideoFormat)); 
                     var command = $"-i {gif} -pix_fmt yuv420p {convertedFilename}"; // Defaults to "mp4"
                     if (await FFMPEGWrapper.RunFFScript( 
                         FFMPEGInterface.FFPMEG, 
                         command, 
-                        overwrite: FFMPEGNeos.Config.GetValue(FFMPEGNeos.Overwrite), 
-                        hidden: FFMPEGNeos.Config.GetValue(FFMPEGNeos.DontCreateConsole)))
+                        overwrite: FFMPEGResonite.Config.GetValue(FFMPEGResonite.Overwrite), 
+                        hidden: FFMPEGResonite.Config.GetValue(FFMPEGResonite.DontCreateConsole)))
                     {
                         mp4s.Add(convertedFilename);
                     }
                 }
 
                 await default(ToWorld);
-                UniversalImporter.Import(AssetClass.Video, mp4s, world, pos, rot, silent: FFMPEGNeos.Config.GetValue(FFMPEGNeos.ImportRawFiles));
+                UniversalImporter.Import(AssetClass.Video, mp4s, world, pos, rot, silent: FFMPEGResonite.Config.GetValue(FFMPEGResonite.ImportRawFiles));
             });
         }
     }

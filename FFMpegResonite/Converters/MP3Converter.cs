@@ -1,10 +1,10 @@
-﻿using BaseX;
-using CodeX;
+﻿using Elements.Core;
+using Elements.Assets;
 using FrooxEngine;
 using System.Collections.Generic;
 using System.IO;
 
-namespace FFMPEGNeos.Converters
+namespace FFMPEGResonite.Converters
 {
     internal static class MP3Converter
     {
@@ -19,21 +19,21 @@ namespace FFMPEGNeos.Converters
                 foreach (var mp3 in mp3s)
                 {
                     var convertedFilename = Path.Combine(
-                        FFMPEGNeos.CachePath, 
-                        Path.GetFileNameWithoutExtension(mp3) + "." + FFMPEGNeos.Config.GetValue(FFMPEGNeos.PreferredAudioFormat)); 
+                        FFMPEGResonite.CachePath, 
+                        Path.GetFileNameWithoutExtension(mp3) + "." + FFMPEGResonite.Config.GetValue(FFMPEGResonite.PreferredAudioFormat)); 
                     var command = $"-i {mp3} -c:a libvorbis {convertedFilename}"; // Defaults to "ogg"
                     if (await FFMPEGWrapper.RunFFScript(
                         FFMPEGInterface.FFPMEG,
                         command,
-                        overwrite: FFMPEGNeos.Config.GetValue(FFMPEGNeos.Overwrite),
-                        hidden: FFMPEGNeos.Config.GetValue(FFMPEGNeos.DontCreateConsole)))
+                        overwrite: FFMPEGResonite.Config.GetValue(FFMPEGResonite.Overwrite),
+                        hidden: FFMPEGResonite.Config.GetValue(FFMPEGResonite.DontCreateConsole)))
                     {
                         oggs.Add(convertedFilename);
                     }
                 }
 
                 await default(ToWorld);
-                UniversalImporter.Import(AssetClass.Audio, oggs, world, pos, rot, silent: FFMPEGNeos.Config.GetValue(FFMPEGNeos.ImportRawFiles));
+                UniversalImporter.Import(AssetClass.Audio, oggs, world, pos, rot, silent: FFMPEGResonite.Config.GetValue(FFMPEGResonite.ImportRawFiles));
             });
         }
     }

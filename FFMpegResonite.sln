@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33110.190
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMpegNeos", "FFMpegNeos\FFMpegNeos.csproj", "{0322B2EF-7452-479D-BAE2-FCAB75033337}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFMpegResonite", "FFMpegResonite\FFMpegResonite.csproj", "{0322B2EF-7452-479D-BAE2-FCAB75033337}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMpegNeos.Tests", "FFMpegNeos.Tests\FFMpegNeos.Tests.csproj", "{69978EEF-E3EC-40CA-8FC4-9863B008410B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFMpegResonite.Tests", "FFMpegResonite.Tests\FFMpegResonite.Tests.csproj", "{69978EEF-E3EC-40CA-8FC4-9863B008410B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

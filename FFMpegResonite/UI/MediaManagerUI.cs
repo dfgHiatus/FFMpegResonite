@@ -1,5 +1,5 @@
 ﻿//using FrooxEngine;
-//namespace FFMPEGNeos
+//namespace FFMPEGResonite
 //{
 //    internal sealed class MediaManagerUI
 //    {
